@@ -1,0 +1,8 @@
+#remove credentials
+.env
+
+#remove node-modules
+./node_modules
+
+#remove logs
+./logs

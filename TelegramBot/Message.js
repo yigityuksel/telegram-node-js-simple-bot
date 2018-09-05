@@ -2,14 +2,13 @@ process.env.NTBA_FIX_319 = 1;
 
 const TelegramBot = require('node-telegram-bot-api');
 
-const token = '';
-const chatId = 0;
+const telegramCredentials = JSON.parse(process.env.TELEGRAM_CREDENTIALS)
 
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(telegramCredentials.token, { polling: true });
 
 var send = function send(message) {
 
-    bot.sendMessage(chatId, message);
+    bot.sendMessage(telegramCredentials.chatId, message);
 
 };
 

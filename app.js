@@ -1,36 +1,24 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var logger = require('morgan');
-var request = require("request");
-var fs = require('fs');
-var util = require('util');
-var app = express();
-
+require('dotenv').config();
+const request = require("request");
 const cronJob = require('cron').CronJob;
-const telegramMessageBot = require('./TelegramBot/Message')
 const binance = require('node-binance-api');
+const logger = require('./utils/logger').logger;
+const telegramMessageBot = require('./TelegramBot/Message');
 
-var log_file = fs.createWriteStream(__dirname + '/debug.log', {flags : 'w'});
-var log_stdout = process.stdout;
+if (process.env.BINANCE_CREDENTIALS == null || process.env.BINANCE_CREDENTIALS == undefined || process.env.BINANCE_CREDENTIALS == '') {
+  logger.error("You need credentials.");
+}
 
-console.log = function(...args) {
-    var output = args.join(' ');
-    log_file.write(util.format(output) + '\r\n');
-    log_stdout.write(util.format(output) + '\r\n');
-};
+const binanceCredentials = JSON.parse(process.env.BINANCE_CREDENTIALS)
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
-
-const binanceInstance = new binance().options({
-  APIKEY: '',
-  APISECRET: '',
+const binance_ = new binance().options({
+  APIKEY: binanceCredentials.apiKey,
+  APISECRET: binanceCredentials.apiSecret,
   useServerTime: true,
   test: true
 });
+
+logger.info("System has started");
 
 new cronJob({
   cronTime: '0 */15 * * * *',
@@ -44,12 +32,14 @@ new cronJob({
         var paribu = JSON.parse(body);
         message += "BTCTRY : " + paribu.BTC_TL.last + " TRY \n";
 
-        binanceInstance.prices((error, ticker) => {
+        binance_.prices((error, ticker) => {
 
           message += "BTCUSD : " + ticker.BTCUSDT + " USD \n";
-          message += "BCNBTC : " + ticker.BCNBTC + " BTC \n";
+          message += "BCNBTC : " + ticker.BCNBTC + " BTC - Bought At : 246  \n";
+          message += "XVGBTC : " + ticker.XVGBTC + " BTC - Bought At : 280  \n";
+          message += "TRXBTC : " + ticker.TRXBTC + " BTC - Bought At : 400 \n";
 
-          console.log("Message : " + message);
+          logger.info("Message : " + message);
 
           telegramMessageBot.send(message);
 
@@ -57,11 +47,7 @@ new cronJob({
 
       }
     );
-
-    console.log("worked at  : " + new Date());
-
   },
+  runOnInit: true,
   start: true
 });
-
-module.exports = app;
