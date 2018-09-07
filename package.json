@@ -9,6 +9,7 @@
     "cron": "^1.3.0",
     "debug": "~2.6.9",
     "dotenv": "^6.0.0",
+    "moment": "^2.22.2",
     "node-binance-api": "^0.8.0",
     "node-telegram-bot-api": "^0.30.0",
     "winston": "^2.4.3",
