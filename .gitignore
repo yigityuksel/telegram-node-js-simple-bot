@@ -2,7 +2,12 @@
 .env
 
 #remove node-modules
-./node_modules
+./node_modules/
 
 #remove logs
-./logs
+./logs/
+
+./coin_history/
+node_modules/
+
+coin_history/
